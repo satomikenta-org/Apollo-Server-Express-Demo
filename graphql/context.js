@@ -4,11 +4,12 @@ const JWT_SECRET_KEY = "SUPERSECRET";
 
 const context = ({ req }) => {
   try {
+    const user = { id: 1, name: "satomi"};
+    return {user}; // fot testing
+
     const authorization = req.headers.authorization;
-    // if ( !authorization ) return undefined;
-    const user = { id: 1, name: "satomi"}; // for test.
-    if (!authorization) return user;
-    
+    if (!authorization) return undefined; 
+
     const token = authorization.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET_KEY);
     return { loggedInUser: decoded.username };
