@@ -1,22 +1,15 @@
-const { AuthenticationError } = require('apollo-server-express');
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const JWT_SECRET_KEY = "SUPERSECRET";
+const SECRET = process.env.JWT_SECRET;
 
-const context = ({ req }) => {
+const context = async ({ req }) => {
   try {
-    const user = { id: 1, name: "satomi"};
-    return {user}; // fot testing
-
-    const authorization = req.headers.authorization;
-    if (!authorization) return undefined; 
-
-    const token = authorization.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET_KEY);
-    return { loggedInUser: decoded.username };
-
-  } catch (error) {
-    console.log(error);
-    throw new AuthenticationError('invalid token');
+    const token = req.headers.authorization;
+    if (!token) return {};
+    const decoded = await jwt.verify(token, SECRET);
+    return { id: decoded.id, name: decoded.name };
+  } catch (err) {
+    return {};
   }
 };
 
