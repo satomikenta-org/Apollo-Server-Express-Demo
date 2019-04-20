@@ -1,25 +1,26 @@
-const { AuthenticationError } = require('apollo-server-express');
 const Services = require('../services');
+const Authenticator = require('./lib/auth');
 
 const resolvers = {
   Query: {
-    me: async (parent, args, { id }) => {
-      if (!id) throw new AuthenticationError("Not Auth"); // Must Create Auth_HOF to avoid writing same logic.
-      return await Services.User.findOneById(id);
-    },
-    getAllPosts: async () => await Services.Post.getAll(),
-    getMyPosts: async (parent, args, { id }) => {
-      if (!id) throw new AuthenticationError("Not Auth");
-      return await Services.Post.findByAuthorId(id)
-    }
+    me: Authenticator( async (parent, args, ctx, info) => await Services.User.findOneById(ctx.id)),
+    getAllPosts: Authenticator(async (parent, args, ctx, info) => {
+      const posts = await Services.Post.getAll()
+      if (!posts) throw new Error('Internal Server Error');
+      return posts;
+    }),
+    getMyPosts: Authenticator( async (parent, args, ctx, info) => {
+      const posts = await Services.Post.findByAuthorId(ctx.id)
+      if (!posts) throw new Error('Internal Server Error');
+      return posts;
+    })
   },
   Mutation: {
-    createPost: async (parent, { title }, { id }) => {
-      if (!id) throw new AuthenticationError("Not Auth");
-      const post = await Services.Post.create(title, id);
+    createPost: Authenticator(async (parent, args, ctx, info) => {
+      const post = await Services.Post.create(args.title, ctx.id);
       if (!post) throw new Error('Failed to Create Post');
       return post;
-    },
+    }),
   },
   Post: {
     author: async (parent, args, ctx) => await Services.User.findOneById(ctx.id)

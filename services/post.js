@@ -17,8 +17,11 @@ class Post {
     try {
       const sql = "SELECT * FROM posts";
       const posts = await pool.query(sql);
-      const jsonPosts = JSON.stringify(posts);
-      return JSON.parse(jsonPosts);
+      if (posts.length > 0) {
+        const jsonPosts = JSON.stringify(posts);
+        return JSON.parse(jsonPosts);
+      }
+      return [];
     } catch(err) {
       return false;
     }
@@ -29,7 +32,6 @@ class Post {
       const sql = "SELECT * FROM posts WHERE author_id = ?";
       const posts = await pool.query(sql, [author_id]);
       if (posts.length > 0) {
-        console.log(posts);
         const jsonPosts = JSON.stringify(posts);
         return JSON.parse(jsonPosts);
       }

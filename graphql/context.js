@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const SECRET = process.env.JWT_SECRET;
 
 const context = async ({ req }) => {
+  console.log("=========================",req.headers);
   try {
     const token = req.headers.authorization;
     if (!token) return {};
